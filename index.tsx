@@ -17,7 +17,7 @@ export {
   RollTypes,
 } from './RollTypes';
 
-/* sample usage:
+/* Sample usage:
 
 const rolls = [
   RollTypes.MetaRollQuarterChance,
