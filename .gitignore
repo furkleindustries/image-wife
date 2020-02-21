@@ -1,5 +1,6 @@
 node_modules/
 dist/
+images/2560*
 
 *.log
 *.swp*
