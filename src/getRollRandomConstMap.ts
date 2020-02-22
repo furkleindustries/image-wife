@@ -5,6 +5,7 @@ export const getRollRandomConstMap = (): Record<string, number> => ({
   InvertHueRotateFilter: 0,
   ReflectTransform: 3,
   RotateTransform: 3,
+  NoiseTransform: 0,
   SaturateFilter: 8,
   SepiaFilter: 8,
 });

@@ -13,6 +13,6 @@ glob(`${imagesDistDir}/*.png`, (err, matches) => {
 
   const relativePaths = matches.map((match) => path.relative(distDir, match));
   const stringified = JSON.stringify(relativePaths, null, 2);
-  const output = `export default ${stringified};`
+  const output = `export const imageFilepaths = ${stringified};`
   fs.writeFile(outputPath, output, 'utf8');
 });

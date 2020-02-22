@@ -11,7 +11,9 @@ import {
   rotateTransform,
 } from './transforms';
 
-export const getRollRandomStyleExpressionGeneratorMap = (): Record<string, (...args: any[]) => string> => ({
+type Gen = (...args: any[]) => string;
+
+export const getRollRandomStyleExpressionGeneratorMap = (): Record<string, Gen> => ({
   BrightnessFilter: brightnessFilter,
   ContrastFilter: contrastFilter,
   HueRotateFilter: hueRotateFilter,

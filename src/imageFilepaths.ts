@@ -1,4 +1,4 @@
-export default [
+export const imageFilepaths = [
   "images\\10x10_1.png",
   "images\\10x10_10.png",
   "images\\10x10_2.png",

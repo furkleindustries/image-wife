@@ -3,6 +3,7 @@ export const getRollRandomNegativeMap = (): Record<string, boolean> => ({
   ContrastFilter: true,
   HueRotateFilter: true,
   InvertHueRotateFilter: false,
+  NoiseFilter: false,
   ReflectTransform: false,
   RotateTransform: false,
   SaturateFilter: true,

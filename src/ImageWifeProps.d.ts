@@ -13,7 +13,7 @@ export interface ImageWifeProps {
     readonly maxBlur?: number;
     readonly maxOpacity?: number;
     readonly maxSaturation?: number;
-    readonly noiseImagesPreloadedPromise?: Promise<void[]>;
+    readonly noiseImagesPreloadedPromise?: Promise<any>;
     readonly noiseImageUrls?: string | string[];
     readonly rollRandomConstMap?: Record<string, number>;
     readonly rollRandomNegativeMap?: Record<string, boolean>;

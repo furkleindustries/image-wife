@@ -57,12 +57,13 @@ export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
   let foundMetaRollThisRoll = false;
   let resetMetaRollEachTick = true;
   let currentMetaRollChance = lastMetaTickValue || 1;
+  let foundNoiseRollThisRoll = false;
   const args = Array.isArray(rolls) ? rolls : [ rolls ];
   for (const rawArg of args) {
     /**
      * Allow functional pseudo-rolls, which emit rolls. Otherwise, just use the plain roll.
      */
-    let argsForIteration = rawArg as Array<string | symbol>;
+    let argsForIteration = rawArg as Array<string | symbol | null>;
     if (typeof argsForIteration === 'function') {
       argsForIteration = (argsForIteration as Function)({
         /* Passed by value, so you can't screw up the loop. */
@@ -78,8 +79,13 @@ export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
       argsForIteration :
       [ argsForIteration ];
 
-    argsForIteration = (argsForIteration as any).flat();
-
+    /**
+     * Null represents a no-op and is skipped entirely without output, roll,
+     * or error.
+     */
+    argsForIteration = (argsForIteration as any).flat().filter((aa: string | symbol) => (
+      aa !== null
+    ));
     for (const arg of argsForIteration) {
       /**
        * Any symbol represents a metaprogramming roll and aborts the iteration early.
@@ -109,9 +115,7 @@ export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
       if (foundMetaRollThisRoll) {
         foundMetaRollThisRoll = false;
         continue;
-      }
-
-      if (Math.random() > currentMetaRollChance) {
+      } else if (Math.random() > currentMetaRollChance) {
         continue;
       }
 
@@ -122,19 +126,26 @@ export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
       random = isNegative && Math.random() < 0.5 ? -random : random;
 
       const expressionGenerator = rollRandomStyleExpressionGeneratorMap[arg as string];
-      const generatedStyleExpression = expressionGenerator(random);
 
       if (isFilterRoll(arg)) {
         /* Throw if InvertHueRotateFilter is included in the stack with HueRotateFilter. */
         if (arg === RollTypes.InvertHueRotateFilter && args.includes(RollTypes.HueRotateFilter)) {
           throw new Error('Cannot combine InvertHueRotateFilter and HueRotateFilter.');
-        }
+        } else if (arg === RollTypes.NoiseFilter) {
+          if (!noiseImageUrls || !noiseImageUrls.length) {
+            throw new Error('Can\'t use the noise filter without any image URLs to use for noise.');
+          }
 
-        filter += generatedStyleExpression;
+          foundNoiseRollThisRoll = true;
+        } else {
+          filter += expressionGenerator(random);
+        }
       } else if (isTransformRoll(arg)) {
-        transform += generatedStyleExpression;
+        transform += expressionGenerator(random);
       } else {
-        throw new Error('Unrecognized roll argument found in the roll stack.');
+        throw new Error(
+          `Unrecognized roll argument found in the roll stack: ${String(arg)}`,
+        );
       }
     }
   }
@@ -160,7 +171,10 @@ export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
     height: '100%',
   };
 
-  const rawDelayTime = typeof delayTime === 'function' ? delayTime() : delayTime;
+  const rawDelayTime = typeof delayTime === 'function' ?
+    delayTime() :
+    delayTime;
+
   const rawDelayConfusionPercentage = typeof delayTimeConfusionPercentage === 'function' ?
     delayTimeConfusionPercentage() :
     delayTimeConfusionPercentage;
@@ -179,12 +193,15 @@ export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
       className="imageWife"
       style={{ position: 'relative' }}
     >
-      <Noiser
-        imageUrls={imageUrls}
-        imagesPreloadedPromise={noiseImagesPreloadedPromise}
-        opacity={maxOpacity}
-        filter={filterStyle}
-      />
+      {foundNoiseRollThisRoll ?
+        <Noiser
+          imageUrls={imageUrls}
+          imagesPreloadedPromise={noiseImagesPreloadedPromise}
+          opacity={maxOpacity}
+          filter={filterStyle}
+        /> :
+        null
+      }
 
       <img
         className="imageWife-image"

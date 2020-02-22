@@ -13,6 +13,7 @@ export const RollTypes = {
   ContrastFilter: 'ContrastFilter',
   HueRotateFilter: 'HueRotateFilter',
   InvertHueRotateFilter: 'InvertHueRotateFilter',
+  NoiseFilter: 'NoiseFilter',
   ReflectTransform: 'ReflectTransform',
   RotateTransform: 'RotateTransform',
   SaturateFilter: 'SaturateFilter',
