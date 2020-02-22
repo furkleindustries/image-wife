@@ -1,10 +1,10 @@
 ## Introduction
 
-A small library for compile-time and runtime procedural modification of photographic images. This library works best when used to make very minimal, occasional modifications to one or more abstract photographs with similar compositions. It can be used to randomize many aspects of photo display on the web, but to an extent it's already fairly easy to do that with CSS. This is a library for producing near-limitless numbers of uncanny similarities to one or more source images.
+A library for compile-time and runtime procedural modification of photographic images. This library works best when used to make very minimal, occasional modifications to one or more abstract photographs with similar compositions. It can be used to randomize many aspects of photo display on the web, but to an extent it's already fairly easy to do that with CSS. This is a library for producing near-limitless numbers of uncanny similarities to one or more source images. Note that, because of including a large number of images, this library is 
 
 ## Installation
 
-Install the package through npm with `npm install --save image-wife`. The codebase is written in TypeScript, built to browser-compatible JavaScript, and includes source maps and declaration files. In addition to the codebase, which is quite small, the library also includes 70 images of various size (all <2MB) used for display and animation of simplex noise. There are also base64-encoded .txt files of the same. None of these are included by default, and will have to be referenced directly through imports/requires or direct `<img>` access.
+Install the package through npm with `npm install --save image-wife`. The codebase is written in TypeScript, built to browser-compatible JavaScript, and includes source maps and declaration files. In addition to the codebase, which is quite small, the library also includes 70 images of various size (all <2MB) used for display and animation of simplex noise. There are also base64-encoded .txt files of the same. None of these are included in exports, and will have to be referenced directly through imports/requires or direct `<img>` access.
 
 ## Usage
 
@@ -128,3 +128,5 @@ ReactDOM.render(
   document.getElementById('root'),
 );
 ```
+
+This code is contained in `src/init.tsx` and can be used by calling the `init` export.

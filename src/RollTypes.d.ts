@@ -3,6 +3,7 @@ export declare const RollTypes: {
     ContrastFilter: string;
     HueRotateFilter: string;
     InvertHueRotateFilter: string;
+    NoiseFilter: string;
     ReflectTransform: string;
     RotateTransform: string;
     SaturateFilter: string;
