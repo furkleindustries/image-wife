@@ -84,23 +84,6 @@ const rolls = [
   RollTypes.RotateTransform,
 ];
 
-const loadedPromise = Promise.all(imageFilepaths.map((url: string) => (
-  new Promise<any>((resolve, reject) => {
-    const img = new Image();
-
-    // https://github.com/sindresorhus/slash/blob/master/index.js
-    const isExtendedLengthPath = /^\\\\\?\\/.test(url);
-    const hasNonAscii = /[^\u0000-\u0080]+/.test(url);
-    const formattedUrl = isExtendedLengthPath || hasNonAscii ?
-      url :
-      url.replace(/\\/g, '/');
-
-    img.src = formattedUrl;
-    img.addEventListener('load', () => resolve());
-    img.addEventListener('error', (e) => reject(e.error));
-  })
-)));
-
 const sources = [
   'https://media.discordapp.net/attachments/635344640769261568/678729526217408582/20200216_172804.jpg?width=1191&height=1198',
   'https://media.discordapp.net/attachments/635344640769261568/678730679156080650/20200216_173301.jpg?width=1173&height=1196',
@@ -117,9 +100,7 @@ ReactDOM.render(
   <div className="wives">
     {sources.map((src, key) => (
       <ImageWife
-        noiseImageUrls={imageFilepaths}
         key={key}
-        noiseImagesPreloadedPromise={loadedPromise}
         rolls={rolls}
         src={src}
       />
