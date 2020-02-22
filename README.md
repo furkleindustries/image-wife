@@ -1,6 +1,6 @@
 ## Introduction
 
-A library for compile-time and runtime procedural modification of photographic images. This library works best when used to make very minimal, occasional modifications to one or more abstract photographs with similar compositions. It can be used to randomize many aspects of photo display on the web, but to an extent it's already fairly easy to do that with CSS. This is a library for producing near-limitless numbers of uncanny similarities to one or more source images. Note that, because of including a large number of images, this library is 
+A library for compile-time and runtime procedural modification of photographic images. This library works best when used to make very minimal, occasional modifications to one or more abstract photographs with similar compositions. It can be used to randomize many aspects of photo display on the web, but to an extent it's already fairly easy to do that with CSS. This is a library for producing near-limitless numbers of uncanny similarities to one or more source images. Note that, because of including a large number of images, this library is approximately 22MB in size, and may take longer than expected to install.
 
 ## Installation
 
