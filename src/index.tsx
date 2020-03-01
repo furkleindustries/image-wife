@@ -58,15 +58,6 @@ export {
   Noiser,
 } from './Noiser';
 export {
-  NoiserProps,
-} from './NoiserProps';
-export {
-  NoiserFilterProps,
-} from './NoiserFilterProps';
-export {
-  RollBaseTypes,
-} from './RollBaseTypes';
-export {
   RollTypes,
 } from './RollTypes';
 export {

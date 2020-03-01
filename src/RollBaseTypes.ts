@@ -1,6 +1,15 @@
+import {
+  FunctionalPseudoRollType,
+} from './FunctionalPseudoRollType';
+import {
+  MetaRollType,
+} from './MetaRollType';
+import {
+  MutationRollType,
+} from './MutationRollType';
+
 export type RollBaseTypes =
-  string |
-  symbol |
-  Array<string | symbol> |
-  ((...any: any[]) => string | symbol | Array<string | symbol> | null) |
-  null;
+  MutationRollType |
+    MetaRollType |
+    FunctionalPseudoRollType |
+    null;

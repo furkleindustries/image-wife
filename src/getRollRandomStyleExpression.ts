@@ -3,6 +3,7 @@ import {
   contrastFilter,
   hueRotateFilter,
   invertHueRotateFilter,
+  monochromeFilter,
   saturateFilter,
   sepiaFilter,
 } from './filters';
@@ -11,6 +12,7 @@ import {
   rotateTransform,
 } from './transforms';
 
+// 🌹🌹🌹
 type Gen = (...args: any[]) => string;
 
 export const getRollRandomStyleExpressionGeneratorMap = (): Record<string, Gen> => ({
@@ -18,6 +20,7 @@ export const getRollRandomStyleExpressionGeneratorMap = (): Record<string, Gen> 
   ContrastFilter: contrastFilter,
   HueRotateFilter: hueRotateFilter,
   InvertHueRotateFilter: invertHueRotateFilter,
+  MonochromeFilter: monochromeFilter,
   ReflectTransform: reflectTransform,
   RotateTransform: rotateTransform,
   SaturateFilter: saturateFilter,

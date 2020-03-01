@@ -8,8 +8,11 @@ import {
   isTransformRoll,
 } from './isTransformRoll';
 import {
-  RollBaseTypes,
-} from './RollBaseTypes';
+  MutationRollType,
+} from './MutationRollType';
+import {
+  RollStackType,
+} from './RollStackType';
 
 export interface ImageWifeProps {
   readonly delayTime?: number | ((...args: any[]) => number);
@@ -26,6 +29,11 @@ export interface ImageWifeProps {
   readonly noiseImageUrls?: string | string[];
   readonly rollRandomConstMap?: Record<string, number>;
   readonly rollRandomNegativeMap?: Record<string, boolean>;
-  readonly rolls: RollBaseTypes | RollBaseTypes[];
+  readonly rolls: RollStackType | MutationRollType;
   readonly src: string;
+  readonly tickUpdate?: (
+    tick: number,
+    setTick: (val: number) => void,
+    realDelayTime: number,
+  ) => void;
 }

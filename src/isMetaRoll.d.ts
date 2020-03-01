@@ -1,1 +1,1 @@
-export declare const isMetaRoll: (roll: any) => boolean;
+export declare const isMetaRoll: (roll: any) => roll is symbol;

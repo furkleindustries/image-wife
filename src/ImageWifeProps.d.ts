@@ -1,7 +1,8 @@
 import { isFilterRoll } from './isFilterRoll';
 import { isMetaRoll } from './isMetaRoll';
 import { isTransformRoll } from './isTransformRoll';
-import { RollBaseTypes } from './RollBaseTypes';
+import { MutationRollType } from './MutationRollType';
+import { RollStackType } from './RollStackType';
 export interface ImageWifeProps {
     readonly delayTime?: number | ((...args: any[]) => number);
     readonly delayTimeConfusionPercentage?: number | ((...args: any[]) => number);
@@ -17,6 +18,6 @@ export interface ImageWifeProps {
     readonly noiseImageUrls?: string | string[];
     readonly rollRandomConstMap?: Record<string, number>;
     readonly rollRandomNegativeMap?: Record<string, boolean>;
-    readonly rolls: RollBaseTypes | RollBaseTypes[];
+    readonly rolls: RollStackType | MutationRollType;
     readonly src: string;
 }

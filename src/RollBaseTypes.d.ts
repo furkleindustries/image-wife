@@ -1,1 +1,4 @@
-export declare type RollBaseTypes = string | symbol | Array<string | symbol> | ((...any: any[]) => string | symbol | Array<string | symbol> | null) | null;
+import { FunctionalPseudoRollType } from './FunctionalPseudoRollType';
+import { MetaRollType } from './MetaRollType';
+import { MutationRollType } from './MutationRollType';
+export declare type RollBaseTypes = MutationRollType | MetaRollType | FunctionalPseudoRollType | null;

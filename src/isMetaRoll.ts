@@ -1,1 +1,1 @@
-export const isMetaRoll = (roll: any) => typeof roll === 'symbol';
+export const isMetaRoll = (roll: any): roll is symbol => typeof roll === 'symbol';

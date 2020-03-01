@@ -1,6 +1,12 @@
 import {
+  CustomSvgFilter,
+} from './CustomSvgFilter';
+import {
   getConfusedDelayTime as getConfusedDelayTimeFunc,
 } from './getConfusedDelayTime';
+import {
+  getCurrentMetaRollChance,
+} from './getCurrentMetaRollChance';
 import {
   getRollRandomConstMap,
 } from './getRollRandomConstMap';
@@ -26,10 +32,17 @@ import {
   Noiser,
 } from './Noiser';
 import {
+  RollBaseTypes,
+} from './RollBaseTypes';
+import {
   RollTypes,
 } from './RollTypes';
+import {
+  tickUpdate,
+} from './tickUpdate';
 
 import * as React from 'react';
+import { getCurrentCustomSvgFilterId } from './getCurrentCustomSvgFilterId';
 
 export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
   delayTime = 8,
@@ -48,6 +61,7 @@ export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
   noiseImagesPreloadedPromise = Promise.resolve(),
   rolls,
   src,
+  tickUpdate,
 }) => {
   let [ lastMetaTickValue, setLastMetaTickValue ] = React.useState(1);
   const [ tick, setTick ] = React.useState(0);
@@ -57,15 +71,16 @@ export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
   let foundMetaRollThisRoll = false;
   let resetMetaRollEachTick = true;
   let currentMetaRollChance = lastMetaTickValue || 1;
+  let foundMonochromeRollThisIteration = false;
   let foundNoiseRollThisRoll = false;
-  const args = Array.isArray(rolls) ? rolls : [ rolls ];
+  const args: RollBaseTypes[] = Array.isArray(rolls) ? rolls : [ rolls ];
   for (const rawArg of args) {
     /**
      * Allow functional pseudo-rolls, which emit rolls. Otherwise, just use the plain roll.
      */
-    let argsForIteration = rawArg as Array<string | symbol | null>;
-    if (typeof argsForIteration === 'function') {
-      argsForIteration = (argsForIteration as Function)({
+    let argsForThisIteration: RollBaseTypes | RollBaseTypes[] = rawArg;
+    if (typeof argsForThisIteration === 'function') {
+      argsForThisIteration = argsForThisIteration({
         /* Passed by value, so you can't screw up the loop. */
         args: [ ...args ],
         currentMetaRollChance,
@@ -75,76 +90,111 @@ export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
       });
     }
 
-    argsForIteration = Array.isArray(argsForIteration) ?
-      argsForIteration :
-      [ argsForIteration ];
+    let filteredThisIterArgs: RollBaseTypes[] = Array.isArray(argsForThisIteration) ?
+      argsForThisIteration :
+      [ argsForThisIteration ];
 
     /**
      * Null represents a no-op and is skipped entirely without output, roll,
-     * or error.
+     * or error. Only a single level of array nesting is allowed.
      */
-    argsForIteration = (argsForIteration as any).flat().filter((aa: string | symbol) => (
-      aa !== null
-    ));
-    for (const arg of argsForIteration) {
+    filteredThisIterArgs = filteredThisIterArgs
+      .flat(1)
+      .filter((aa: string | symbol) => aa !== null);
+
+    /* Reset the sentinel value before iterating over the flat roll stack. */
+    foundMetaRollThisRoll = false;
+
+    for (const arg of filteredThisIterArgs) {
       /**
-       * Any symbol represents a metaprogramming roll and aborts the iteration early.
+       * Any symbol represents a metaprogramming roll and aborts the iteration
+       * early.
        */
       if (isMetaRoll(arg)) {
+        /* This is the sentinel value for early meta roll aborts. */
         foundMetaRollThisRoll = true;
 
-        if (arg === RollTypes.MetaRollHalfChance) {
-          currentMetaRollChance = 0.5;
-        } else if (arg === RollTypes.MetaRollQuarterChance) {
-          currentMetaRollChance = 0.25;
-        } else if (arg === RollTypes.MetaRollTenthChance) {
-          currentMetaRollChance = 0.1;
-        } else if (arg === RollTypes.MetaRollFiftiethChance) {
-          currentMetaRollChance = 0.025;
-        } else if (arg === RollTypes.MetaRollHundredthChance) {
-          currentMetaRollChance = 0.01;
-        } else if (arg === RollTypes.MetaRollDoResetEachTick) {
+        const curChance = currentMetaRollChance;
+        /* This will return curChance if arg is a reset meta roll. */
+        currentMetaRollChance = getCurrentMetaRollChance(curChance, arg);
+
+        if (arg === RollTypes.MetaRollDoResetEachTick) {
           resetMetaRollEachTick = true;
           setLastMetaTickValue(1);
         } else if (arg === RollTypes.MetaRollDontResetEachTick) {
           resetMetaRollEachTick = false;
           setLastMetaTickValue(currentMetaRollChance);
         }
+
+        /**
+         * If the roll is a meta roll, everything's already done by now.
+         * Otherwise, style expression/SVG filter/noise image injection needs to
+         * occur.
+         */
+        continue;
       }
 
-      if (foundMetaRollThisRoll) {
-        foundMetaRollThisRoll = false;
-        continue;
-      } else if (Math.random() > currentMetaRollChance) {
+      /**
+       * If a random number in the [0, 1) range is greater than the current
+       * meta roll chance (which basically acts as a high-pass filter here),
+       * then the roll is discarded entirely, just as if it were a null roll,
+       * or a meta roll, which has already been executed in full by now, and we
+       * move on to the next roll.
+       */
+      if (Math.random() > currentMetaRollChance) {
         continue;
       }
 
-      const factor = rollRandomConstMap[arg as string];
+      /**
+       * Set the local variable to denote that a noise filter roll has been
+       * found. Note that this encapsulates the roll state, not the iteration
+       * state, so it is not reset as with thisIterationMonochromeRoll.
+       */
+      if (arg === RollTypes.NoiseFilter) {
+        foundNoiseRollThisRoll = true;
+      }
+
+      /* Cast the argument to a string key. */
+      const key = arg as string;
+
+      /**
+       * Get the [0, +inf] integer factor from the const map. 0 will always
+       * result in a random value of 0, even if canBeNegative is true.
+       */
+      const factor = Math.abs(rollRandomConstMap[key]);
       let random = Math.floor(Math.random() * factor);
 
-      const isNegative = rollRandomNegativeMap[arg as string];
-      random = isNegative && Math.random() < 0.5 ? -random : random;
+      /**
+       * Results can only potentially be negative if the related boolean in the
+       * negative map is true. After that, the random value must be positive or
+       * +0 (not -0), after which a 50% random chance is performed to determine
+       * whether the value is randomized or left unchanged. 
+       */
+      const canBeNegative = Boolean(random && rollRandomNegativeMap[key]);
+      random = canBeNegative && Math.random() < 0.5 ? -random : random;
 
-      const expressionGenerator = rollRandomStyleExpressionGeneratorMap[arg as string];
+      /**
+       * Set the monochrome random value for the iteration. This could be done
+       * before the isNegative declaration, because it will always be false for
+       * RollTypes.MonochromeFilter, but it matters little either way.
+       */
+      foundMonochromeRollThisIteration = arg === RollTypes.MonochromeFilter;
+
+      /* Get the generator function from the expression generator map. */
+      const expressionGenerator = rollRandomStyleExpressionGeneratorMap[key];
 
       if (isFilterRoll(arg)) {
-        /* Throw if InvertHueRotateFilter is included in the stack with HueRotateFilter. */
-        if (arg === RollTypes.InvertHueRotateFilter && args.includes(RollTypes.HueRotateFilter)) {
-          throw new Error('Cannot combine InvertHueRotateFilter and HueRotateFilter.');
-        } else if (arg === RollTypes.NoiseFilter) {
-          if (!noiseImageUrls || !noiseImageUrls.length) {
-            throw new Error('Can\'t use the noise filter without any image URLs to use for noise.');
-          }
-
-          foundNoiseRollThisRoll = true;
-        } else {
+        /**
+         * NoiseFilter is handled through image injection and so is excluded.
+         */
+        if (arg !== RollTypes.NoiseFilter) {
           filter += expressionGenerator(random);
         }
       } else if (isTransformRoll(arg)) {
         transform += expressionGenerator(random);
       } else {
         throw new Error(
-          `Unrecognized roll argument found in the roll stack: ${String(arg)}`,
+          `Unrecognized roll argument found in the roll stack: ${key}`,
         );
       }
     }
@@ -184,9 +234,10 @@ export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
     rawDelayConfusionPercentage,
   );
 
-  const update = () => setTimeout(() => setTick(tick + 1), realDelayTime);
-
-  requestAnimationFrame(update);
+  /* If the component has been ordered to refresh on a timer, set that last. */
+  if (typeof tickUpdate === 'function') {
+    tickUpdate(tick, setTick, realDelayTime);
+  }
 
   return (
     <div
@@ -200,8 +251,14 @@ export const ImageWife: React.FunctionComponent<ImageWifeProps> = ({
           opacity={maxOpacity}
           filter={filterStyle}
         /> :
-        null
-      }
+        null}
+
+      {foundMonochromeRollThisIteration ?
+        <CustomSvgFilter
+          filterId={getCurrentCustomSvgFilterId()}
+          type={RollTypes.MonochromeFilter}
+        /> : 
+        null}
 
       <img
         className="imageWife-image"

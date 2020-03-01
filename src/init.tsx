@@ -1,12 +1,21 @@
 import {
+  FunctionalPseudoRollType,
+} from './FunctionalPseudoRollType';
+import {
   imageFilepaths,
 } from './imageFilepaths';
 import {
   ImageWife,
 } from './ImageWife';
 import {
+  RollStackType,
+} from './RollStackType';
+import {
   RollTypes,
 } from './RollTypes';
+import {
+  tickUpdate,
+} from './tickUpdate';
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -16,24 +25,29 @@ import * as ReactDOM from 'react-dom';
  * want the sample output.
  */
 export const init = () => {
-  const rolls = [
+  const rolls: RollStackType = [
     RollTypes.MetaRollQuarterChance,
     RollTypes.BrightnessFilter,
     RollTypes.ContrastFilter,
 
-    () => (
+    (() => (
       Math.random() > 0.3 ?
         RollTypes.HueRotateFilter :
         RollTypes.InvertHueRotateFilter
-    ),
+    )) as FunctionalPseudoRollType,
     
-    () => (
+    (() => (
       Math.random() > 0.3 ?
         RollTypes.NoiseFilter :
         null
-    ),
+    )) as FunctionalPseudoRollType,
 
-    RollTypes.SaturateFilter,
+    (() => (
+      Math.random() > 0.3 ?
+        RollTypes.SaturateFilter :
+        RollTypes.MonochromeFilter
+    )) as FunctionalPseudoRollType,
+
     RollTypes.SepiaFilter,
     RollTypes.MetaRollFiftiethChance,
     RollTypes.ReflectTransform,
@@ -78,6 +92,7 @@ export const init = () => {
           noiseImagesPreloadedPromise={loadedPromise}
           rolls={rolls}
           src={src}
+          tickUpdate={tickUpdate}
         />
       ))}
     </div>,

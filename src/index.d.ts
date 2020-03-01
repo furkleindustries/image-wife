@@ -14,8 +14,5 @@ export { isMetaRoll, } from './isMetaRoll';
 export { isTransformRoll, } from './isTransformRoll';
 export { MetaRollDoResetEachTick, MetaRollDontResetEachTick, MetaRollFiftiethChance, MetaRollHalfChance, MetaRollHundredthChance, MetaRollQuarterChance, MetaRollTenthChance, } from './MetaRolls';
 export { Noiser, } from './Noiser';
-export { NoiserProps, } from './NoiserProps';
-export { NoiserFilterProps, } from './NoiserFilterProps';
-export { RollBaseTypes, } from './RollBaseTypes';
 export { RollTypes, } from './RollTypes';
 export { reflectTransform, rotateTransform, } from './transforms';

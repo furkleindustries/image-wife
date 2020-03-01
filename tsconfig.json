@@ -16,7 +16,9 @@
     "lib": [                                  /* Specify library files to be included in the compilation. */
       "dom",
       "es5",
-      "es6"
+      "es6",
+      "es7",
+      "esnext"
     ],
     // "allowJs": true,                       /* Allow javascript files to be compiled. */
     // "checkJs": true,                       /* Report errors in .js files. */
